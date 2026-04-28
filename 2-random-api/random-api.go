@@ -1,6 +1,7 @@
 package random_api
 
 import (
+	"kilkenny/purpleschool/configs"
 	"log"
 	"net/http"
 )
@@ -14,7 +15,7 @@ func initServerMux() {
 	InitHandlers(mux)
 
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    configs.LoadConfig().Server.Addr,
 		Handler: mux,
 	}
 
