@@ -11,7 +11,6 @@ type Config struct {
 	Db     DbConfig
 	Server Server
 	SMTP   SMTP
-	Verify Verify
 }
 
 type Server struct {
@@ -22,11 +21,10 @@ type DbConfig struct {
 	Dns string
 }
 
+// Email - smtp.gmail.com:587
+// Email - данные авторизации
+// Password - данные авторизации
 type SMTP struct {
-	From string
-}
-
-type Verify struct {
 	Email    string
 	Password string
 	Address  string
@@ -49,10 +47,6 @@ func LoadConfig() *Config {
 		},
 
 		SMTP: SMTP{
-			From: os.Getenv("EMAIL_FROM"),
-		},
-
-		Verify: Verify{
 			Email:    os.Getenv("EMAIL_TO"),
 			Password: os.Getenv("PASSWORD"),
 			Address:  os.Getenv("ADDRESS"),

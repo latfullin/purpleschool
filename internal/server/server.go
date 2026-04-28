@@ -3,6 +3,7 @@ package server
 import (
 	"kilkenny/purpleschool/configs"
 	"kilkenny/purpleschool/internal/auth"
+	"kilkenny/purpleschool/internal/verify"
 	"log"
 	"net/http"
 )
@@ -29,6 +30,10 @@ func initServerMux(mux *http.ServeMux, config *configs.Config) {
 func initRouters(config *configs.Config) *http.ServeMux {
 	router := http.NewServeMux()
 	auth.AuthHandlers(router, auth.AuthHandlerDeps{
+		Config: config,
+	})
+
+	verify.VerifyHadlers(router, verify.VerifyHandler{
 		Config: config,
 	})
 
