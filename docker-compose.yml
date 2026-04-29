@@ -1,0 +1,26 @@
+networks:
+  default: 
+    name: go
+
+services: 
+  go:
+    container_name: ${DOCKER_APPLICATION_NAME}-go
+    build:
+      context: ./app
+      dockerfile: ../docker/go/Dockerfile
+    volumes: 
+      - ./app:/app
+    depends_on:
+      - mysql
+  mysql:
+    container_name: ${DOCKER_APPLICATION_NAME}-mysql
+    image: mysql:8.0
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql/
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DOCKER_MYSQL_ROOT_PASSWORD:-password}'
+      MYSQL_DATABASE: '${DOCKER_MYSQL_DATABASE:-example}'
+      MYSQL_USER: '${DOCKER_MYSQL_USER:-user}'
+      MYSQL_PASSWORD: '${DOCKER_MYSQL_PASSWORD:-password}'
+      TZ: Europe/Moscow
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
