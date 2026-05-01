@@ -5,6 +5,12 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
+)
+
+var (
+	instance *Config
+	only     sync.Once
 )
 
 type Config struct {
@@ -31,23 +37,28 @@ type SMTP struct {
 }
 
 func LoadConfig() *Config {
-	loadDotEnv(".env")
 
-	return &Config{
-		Db: DbConfig{
-			Dns: os.Getenv("DNS"),
-		},
+	only.Do(func() {
+		loadDotEnv(".env")
 
-		Server: Server{
-			Addr: os.Getenv("Addr"),
-		},
+		instance = &Config{
+			Db: DbConfig{
+				Dns: os.Getenv("DNS"),
+			},
 
-		SMTP: SMTP{
-			Email:    os.Getenv("EMAIL_TO"),
-			Password: os.Getenv("PASSWORD"),
-			Address:  os.Getenv("ADDRESS"),
-		},
-	}
+			Server: Server{
+				Addr: os.Getenv("Addr"),
+			},
+
+			SMTP: SMTP{
+				Email:    os.Getenv("EMAIL_TO"),
+				Password: os.Getenv("PASSWORD"),
+				Address:  os.Getenv("ADDRESS"),
+			},
+		}
+	})
+
+	return instance
 }
 
 func loadDotEnv(path string) {

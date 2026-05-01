@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"fmt"
 	"kilkenny/purpleschool/configs"
+	"kilkenny/purpleschool/pkg/req"
 	json "kilkenny/purpleschool/pkg/res"
 	"net/http"
 )
@@ -20,12 +20,17 @@ func AuthHandlers(mux *http.ServeMux, deps AuthHandlerDeps) {
 		Config: deps.Config,
 	}
 
-	mux.HandleFunc("/auth/register", hander.register)
-	mux.HandleFunc("/auth/login", hander.auth)
+	mux.HandleFunc("POST /auth/register", hander.register)
+	mux.HandleFunc("POST /auth/login", hander.auth)
 }
 
 func (hander *AuthHandler) auth(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(hander.Server.Addr)
+
+	_, err := req.HandleBody[LoginRequest](&w, r)
+
+	if err != nil {
+		return
+	}
 
 	data := LoginResponse{
 		Token: "132123",
@@ -38,4 +43,18 @@ func (hander *AuthHandler) auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (hander *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
+	_, err := req.HandleBody[RegisterRequest](&w, r)
+
+	if err != nil {
+		return
+	}
+
+	data := RegisterResponse{
+		Token: "132123",
+	}
+
+	json.Json(w, json.Response{
+		Response: data,
+		Status:   200,
+	})
 }
