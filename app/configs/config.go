@@ -31,9 +31,10 @@ type DbConfig struct {
 // Email - данные авторизации
 // Password - данные авторизации
 type SMTP struct {
-	Email    string
+	FROM     string
 	Password string
-	Address  string
+	HOST     string
+	PORT     string
 }
 
 func LoadConfig() *Config {
@@ -51,9 +52,10 @@ func LoadConfig() *Config {
 			},
 
 			SMTP: SMTP{
-				Email:    os.Getenv("EMAIL_TO"),
-				Password: os.Getenv("PASSWORD"),
-				Address:  os.Getenv("ADDRESS"),
+				FROM:     os.Getenv("MAIL_SMTP_FROM"),
+				Password: os.Getenv("MAIL_SMTP_PASSWORD"),
+				HOST:     os.Getenv("MAIL_SMTP_HOST"),
+				PORT:     os.Getenv("MAIL_SMTP_PORT"),
 			},
 		}
 	})

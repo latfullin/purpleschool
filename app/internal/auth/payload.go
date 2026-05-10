@@ -8,13 +8,16 @@ type RegisterResponse struct {
 	Token string `json:"token"`
 }
 
-type LoginRequest struct {
+type CredentialsPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 
+type LoginRequest struct {
+	CredentialsPayload
+}
+
 type RegisterRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-	Name     string `json:"name" validate:"required"`
+	CredentialsPayload
+	Name string `json:"name" validate:"required"`
 }
