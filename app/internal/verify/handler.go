@@ -8,6 +8,8 @@ import (
 	"kilkenny/purpleschool/pkg/req"
 	"kilkenny/purpleschool/pkg/res"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type VerifyHandler struct {
@@ -61,18 +63,25 @@ func (halder *VerifyHandler) send(w http.ResponseWriter, r *http.Request) {
 
 func (halder *VerifyHandler) verify(w http.ResponseWriter, r *http.Request) {
 	hash := r.PathValue("hash")
-	hashWr, err := helpers.ReadHash()
+	hashWr, errRead := helpers.ReadHash()
+
+	if errRead != nil {
+		res.Json(w, res.Response{
+			Response: false,
+			Status:   http.StatusBadRequest,
+		})
+		return
+	}
 
 	payload := ConfirmPayload{
 		Hash: hash,
 	}
 
-	if err != nil {
+	if err := validator.New().Struct(payload); err != nil {
 		res.Json(w, res.Response{
 			Response: err.Error(),
 			Status:   http.StatusBadRequest,
 		})
-
 		return
 	}
 

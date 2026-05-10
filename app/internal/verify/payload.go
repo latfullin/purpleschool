@@ -10,5 +10,5 @@ type SendRequest struct {
 }
 
 type ConfirmPayload struct {
-	Hash string `validate:"required"`
+	Hash string `validate:"required,min=32"`
 }
