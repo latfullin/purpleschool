@@ -85,14 +85,14 @@ func (halder *VerifyHandler) verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if hash == hashWr {
-		helpers.DelereHash()
 		res.Json(w, res.Response{
-			Response: "Почти подтверждена!",
+			Response: true,
 			Status:   http.StatusOK,
 		})
 	} else {
+		helpers.DelereHash()
 		res.Json(w, res.Response{
-			Response: payload,
+			Response: false,
 			Status:   http.StatusBadRequest,
 		})
 	}
