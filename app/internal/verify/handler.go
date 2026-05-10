@@ -33,13 +33,15 @@ func (halder *VerifyHandler) send(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hash, err := helpers.GenerateHash()
-	_, fail := helpers.SaveHash(hash)
+	fail := helpers.SaveHash(hash, body.Email)
 
 	if err != nil || fail != nil {
 		res.Json(w, res.Response{
-			Response: "Ошибка при подготовке данных.",
+			Response: fail.Error(),
 			Status:   http.StatusInternalServerError,
 		})
+
+		return
 	}
 
 	if err := mailing.Send(&mailing.Sender{
@@ -63,27 +65,6 @@ func (halder *VerifyHandler) send(w http.ResponseWriter, r *http.Request) {
 
 func (halder *VerifyHandler) verify(w http.ResponseWriter, r *http.Request) {
 	hash := r.PathValue("hash")
-	hashWr, errRead := helpers.ReadHash()
-
-	if errRead != nil {
-		res.Json(w, res.Response{
-			Response: false,
-			Status:   http.StatusBadRequest,
-		})
-		return
-	}
-
-	payload := ConfirmPayload{
-		Hash: hash,
-	}
-
-	if err := validator.New().Struct(payload); err != nil {
-		res.Json(w, res.Response{
-			Response: err.Error(),
-			Status:   http.StatusBadRequest,
-		})
-		return
-	}
 
 	if hash == "" {
 		res.Json(w, res.Response{
@@ -93,13 +74,36 @@ func (halder *VerifyHandler) verify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if hash == hashWr {
+	payload := ConfirmPayload{
+		Hash: hash,
+	}
+
+	hashWr, errRead := helpers.ReadHash(hash)
+	if errRead != nil {
+		res.Json(w, res.Response{
+			Response: false,
+			Status:   http.StatusBadRequest,
+		})
+		return
+	}
+
+	if err := validator.New().Struct(payload); err != nil {
+		_ = helpers.DelereHash(hash)
+
+		res.Json(w, res.Response{
+			Response: err.Error(),
+			Status:   http.StatusBadRequest,
+		})
+		return
+	}
+
+	if hash == hashWr.Hash {
 		res.Json(w, res.Response{
 			Response: true,
 			Status:   http.StatusOK,
 		})
 	} else {
-		helpers.DelereHash()
+		_ = helpers.DelereHash(hash)
 		res.Json(w, res.Response{
 			Response: false,
 			Status:   http.StatusBadRequest,

@@ -1,31 +1,105 @@
 package helpers
 
-import "os"
+import (
+	"encoding/json"
+	"errors"
+	"os"
+	"time"
+)
 
-func SaveHash(data string) (bool, error) {
-	file, err := os.Create("Verify.txt")
-
-	defer file.Close()
-
-	if err != nil {
-		return false, err
-	}
-
-	file.WriteString(data)
-
-	return true, nil
+type VerifyRecord struct {
+	Hash      string    `json:"hash"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func ReadHash() (string, error) {
-	content, err := os.ReadFile("Verify.txt")
-
+func SaveHash(hash string, email string) error {
+	records, err := readAllHashes()
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return string(content), nil
+	record := VerifyRecord{
+		Hash:      hash,
+		Email:     email,
+		CreatedAt: time.Now(),
+	}
+
+	records = append(records, record)
+	return writeAllHashes(records)
 }
 
-func DelereHash() error {
-	return os.Remove("Verify.txt")
+func ReadHash(hash string) (VerifyRecord, error) {
+	records, err := readAllHashes()
+	if err != nil {
+		return VerifyRecord{}, err
+	}
+
+	for _, record := range records {
+		if record.Hash == hash {
+			return record, nil
+		}
+	}
+
+	return VerifyRecord{}, os.ErrNotExist
+}
+
+func DelereHash(hash string) error {
+	records, err := readAllHashes()
+	if err != nil {
+		return err
+	}
+
+	filtered := make([]VerifyRecord, 0, len(records))
+	found := false
+	for _, record := range records {
+		if record.Hash == hash {
+			found = true
+			continue
+		}
+		filtered = append(filtered, record)
+	}
+
+	if !found {
+		return os.ErrNotExist
+	}
+
+	return writeAllHashes(filtered)
+}
+
+func readAllHashes() ([]VerifyRecord, error) {
+	content, err := os.ReadFile("verify.json")
+	if errors.Is(err, os.ErrNotExist) {
+		return []VerifyRecord{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(content) == 0 {
+		return []VerifyRecord{}, nil
+	}
+
+	var records []VerifyRecord
+	if err := json.Unmarshal(content, &records); err == nil {
+		return records, nil
+	}
+
+	var single VerifyRecord
+	if err := json.Unmarshal(content, &single); err == nil {
+		if single.Hash == "" {
+			return []VerifyRecord{}, nil
+		}
+		return []VerifyRecord{single}, nil
+	}
+
+	return nil, err
+}
+
+func writeAllHashes(records []VerifyRecord) error {
+	content, err := json.Marshal(records)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile("verify.json", content, 0o600)
 }
