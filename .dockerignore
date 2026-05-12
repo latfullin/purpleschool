@@ -1,0 +1,5 @@
+docker/mysql/data
+.git
+.gitignore
+.env
+**/.DS_Store

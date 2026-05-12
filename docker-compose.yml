@@ -1,0 +1,27 @@
+networks:
+  default: 
+    name: go
+
+services: 
+  go:
+    container_name: ${DOCKER_APPLICATION_NAME}-go
+    build:
+      context: ./app
+      dockerfile: ../docker/go/Dockerfile
+    volumes: 
+      - ./app:/app
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: '${DOCKER_POSTGRES_USER:-user}'
+      POSTGRES_PASSWORD: '${DOCKER_POSTGRES_PASSWORD:-password}'
+      POSTGRES_DB: '${DOCKER_POSTGRES_DATABASE:-example}'
+      TZ: Europe/Moscow
+    ports:
+      - "5432:5432"
+    container_name: ${DOCKER_APPLICATION_NAME}-postgres
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgres/data

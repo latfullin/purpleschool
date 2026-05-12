@@ -1,0 +1,4 @@
+.env
+docker/mysql/data/*
+docker/postgres/data/*
+app/verify.json
