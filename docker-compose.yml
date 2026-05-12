@@ -11,16 +11,17 @@ services:
     volumes: 
       - ./app:/app
     depends_on:
-      - mysql
-  mysql:
-    container_name: ${DOCKER_APPLICATION_NAME}-mysql
-    image: mysql:8.0
-    volumes:
-      - ./docker/mysql/data:/var/lib/mysql/
+      - db
+  db:
+    image: postgres:latest
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: '${DOCKER_MYSQL_ROOT_PASSWORD:-password}'
-      MYSQL_DATABASE: '${DOCKER_MYSQL_DATABASE:-example}'
-      MYSQL_USER: '${DOCKER_MYSQL_USER:-user}'
-      MYSQL_PASSWORD: '${DOCKER_MYSQL_PASSWORD:-password}'
+      POSTGRES_USER: '${DOCKER_POSTGRES_USER:-user}'
+      POSTGRES_PASSWORD: '${DOCKER_POSTGRES_PASSWORD:-password}'
+      POSTGRES_DB: '${DOCKER_POSTGRES_DATABASE:-example}'
       TZ: Europe/Moscow
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "5432:5432"
+    container_name: ${DOCKER_APPLICATION_NAME}-postgres
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgres/data
