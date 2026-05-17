@@ -24,7 +24,7 @@ type Server struct {
 }
 
 type DbConfig struct {
-	Dns string
+	Dsn string
 }
 
 // Email - smtp.gmail.com:587
@@ -44,7 +44,7 @@ func LoadConfig() *Config {
 
 		instance = &Config{
 			Db: DbConfig{
-				Dns: os.Getenv("DNS"),
+				Dsn: os.Getenv("DSN"),
 			},
 
 			Server: Server{
