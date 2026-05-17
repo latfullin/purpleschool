@@ -38,7 +38,7 @@ func (hander *AuthHandler) auth(w http.ResponseWriter, r *http.Request) {
 
 	json.Json(w, json.Response{
 		Response: data,
-		Status:   200,
+		Status:   http.StatusOK,
 	})
 }
 
@@ -55,6 +55,6 @@ func (hander *AuthHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	json.Json(w, json.Response{
 		Response: data,
-		Status:   200,
+		Status:   http.StatusOK,
 	})
 }
