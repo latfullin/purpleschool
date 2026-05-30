@@ -2,6 +2,8 @@ package link
 
 import (
 	"kilkenny/purpleschool/pkg/db"
+
+	"gorm.io/gorm/clause"
 )
 
 type LinkRespository struct {
@@ -35,10 +37,39 @@ func (repo *LinkRespository) Get(hash string) (*Link, error) {
 	return &link, nil
 }
 
-func (repo *LinkRespository) Update(hash string) (*Link, error) {
-	return nil, nil
+func (repo *LinkRespository) GetById(id uint) (*Link, error) {
+	var link Link
+	result := repo.Databases.DB.First(&link, "id = ?", id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &link, nil
 }
 
-func (repo *LinkRespository) Delete(id string) bool {
-	return false
+func (repo *LinkRespository) Update(link *Link) (*Link, error) {
+	result := repo.Databases.Clauses(clause.Returning{}).Updates(link)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return link, nil
+}
+
+func (repo *LinkRespository) Delete(id uint) error {
+
+	_, err := repo.GetById(id)
+
+	if err == nil {
+		return err
+	}
+
+	result := repo.Databases.Delete(&Link{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
