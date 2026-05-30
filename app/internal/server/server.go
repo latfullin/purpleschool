@@ -4,12 +4,16 @@ import (
 	"kilkenny/purpleschool/configs"
 	"kilkenny/purpleschool/internal/auth"
 	"kilkenny/purpleschool/internal/verify"
+	"kilkenny/purpleschool/pkg/db"
 	"log"
 	"net/http"
 )
 
 func Start() {
 	config := configs.LoadConfig()
+
+	_ = db.NewDb(config)
+
 	router := initRouters(config)
 	initServerMux(router, config)
 }

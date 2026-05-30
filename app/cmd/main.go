@@ -1,6 +1,8 @@
 package main
 
-import "kilkenny/purpleschool/internal/server"
+import (
+	"kilkenny/purpleschool/internal/server"
+)
 
 func main() {
 	server.Start()
