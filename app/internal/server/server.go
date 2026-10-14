@@ -3,18 +3,26 @@ package server
 import (
 	"kilkenny/purpleschool/configs"
 	"kilkenny/purpleschool/internal/auth"
+	"kilkenny/purpleschool/internal/link"
 	"kilkenny/purpleschool/internal/verify"
 	"kilkenny/purpleschool/pkg/db"
 	"log"
 	"net/http"
 )
 
+type Repository struct {
+	LinkRepository *link.LinkRespository
+}
+
 func Start() {
 	config := configs.LoadConfig()
 
-	_ = db.NewDb(config)
+	db := db.NewDb(config)
 
-	router := initRouters(config)
+	repository := initRepository(db)
+
+	router := initRouters(config, repository)
+
 	initServerMux(router, config)
 }
 
@@ -31,7 +39,7 @@ func initServerMux(mux *http.ServeMux, config *configs.Config) {
 	}
 }
 
-func initRouters(config *configs.Config) *http.ServeMux {
+func initRouters(config *configs.Config, rep *Repository) *http.ServeMux {
 	router := http.NewServeMux()
 	auth.AuthHandlers(router, auth.AuthHandlerDeps{
 		Config: config,
@@ -41,5 +49,17 @@ func initRouters(config *configs.Config) *http.ServeMux {
 		Config: config,
 	})
 
+	link.LinkHanlder(router, link.LinkHandlderDeps{
+		LinkRepository: rep.LinkRepository,
+	})
+
 	return router
+}
+
+func initRepository(db *db.Db) *Repository {
+	linkReposotory := link.NewLinkRepository(db)
+
+	return &Repository{
+		LinkRepository: linkReposotory,
+	}
 }

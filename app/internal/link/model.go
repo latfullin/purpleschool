@@ -13,8 +13,14 @@ type Link struct {
 }
 
 func NewLink(url string) *Link {
-	return &Link{
-		Url:  url,
-		Hash: helpers.GenerateStringRune(16),
+	link := &Link{
+		Url: url,
 	}
+	link.GenerateHash()
+
+	return link
+}
+
+func (link *Link) GenerateHash() {
+	link.Hash = helpers.GenerateStringRune(16)
 }
